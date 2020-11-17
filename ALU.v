@@ -8,25 +8,80 @@
 
 
 	 
-module ALU(InputA,InputB,OP,Out,Zero);
+module ALU(InputA,InputB,OP,Function,Out,Zero);
 
-	input [ 7:0] InputA;
-	input [ 7:0] InputB;
-	input [ 2:0] OP;
+	input [7:0] InputA;
+	input [7:0] InputB;
+	input [1:0] Function;
+	input [1:0] OP;
 	output reg [7:0] Out; // logic in SystemVerilog
 	output reg Zero;
 
+	/*
+		    OP		Function
+	Add    00	      00		A + B
+	Beq	 00			01		A - B, if result == 0 then zero = 1
+	
+	SW		 01			00		N/A
+	LW		 01			01		N/A
+	SLT 	 01			10		A - B, if result < 0 then out = 1
+	Mv		 01			11		A + 0 	*might not use
+	
+	ORR    10			00 	A | B
+	Sub	 10			01		A - B
+	
+	SLL	 11			00    A << B
+	SRL	 11			01		A >> B
+	*/
+	
 	always@* // always_comb in systemverilog
 	begin 
 		Out = 0;
 		case (OP)
-		3'b000: Out = InputA + InputB; // ADD
-		3'b001: Out = InputA & InputB; // AND
-		3'b010: Out = InputA | InputB; // OR
-		3'b011: Out = InputA ^ InputB; // XOR
-		3'b100: Out = InputA << 1;				// Shift left
-		3'b101: Out = {1'b0,InputA[7:1]};   // Shift right
-		default: Out = 0;
+		2'b00:
+					begin
+					
+						if(Function == 2'b00) begin			// add
+							Out = InputA + InputB;
+						end
+						
+						else if(Function == 2'b01) begin 	//beq
+							Out = InputA - InputB;		
+						end
+						
+					end
+		2'b01: 
+					begin
+						
+						if(Function == 2'b10) begin 			// slt
+							Out = InputA - InputB;
+							if(Out < 0)
+								Out = 1;
+							else
+								Out = 0;
+						end
+						
+						else if(Function == 2'b11)				// mov
+							Out = InputA + 0;
+						
+					end
+		2'b10: 
+					begin
+						if(Function == 2'b00)					// orr
+							Out = InputA | InputB;
+							
+						else if(Function == 2'b01)				// sub
+							Out = InputA - InputB;
+					end
+				
+		2'b11: 
+					begin
+						if(Function == 2'b00)					// sll
+							Out = InputA << InputB;
+							
+						else if(Function == 2'b01)				// srl
+							Out = InputA >> InputB;
+					end				
 	  endcase
 	
 	end 

@@ -35,21 +35,21 @@ ALU uut(
   .Zero(Zero)
     );
 	 
-initial begin
+	initial begin
 
 
-	INPUTA = 1;
-	INPUTB = 1; 
-	op= 'b01; // AND
-	test_alu_func; // void function call
-	#5;
+		INPUTA = 1;
+		INPUTB = 1; 
+		op= 'b01; // AND
+		test_alu_func; // void function call
+		#5;
 	
 	
-	INPUTA = 4;
-	INPUTB = 1;
-	op= 'b101; // ADD
-	test_alu_func; // void function call
-	#5;
+		INPUTA = 4;
+		INPUTB = 1;
+		op= 'b101; // ADD
+		test_alu_func; // void function call
+		#5;
 	end
 	
 	task test_alu_func;
