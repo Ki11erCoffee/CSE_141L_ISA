@@ -24,7 +24,7 @@ module CPU(Reset, Start, Clk,Ack);
 	wire [ 9:0] PgmCtr,        // program counter
 			      PCTarg;
 	wire [ 8:0] Instruction;   // our 9-bit instruction
-	wire [ 8:7] Instr_opcode;  // out 3-bit opcode
+	wire [ 2:0] Instr_opcode;  // out 3-bit opcode
 	wire [ 7:0] ReadA, ReadB;  // reg_file outputs
 	wire [ 7:0] InA, InB, 	   // ALU operand inputs
 					ALU_out;       // ALU result
@@ -34,6 +34,7 @@ module CPU(Reset, Start, Clk,Ack);
 	wire        MemWrite,	   // data_memory write enable
 				   RegWrEn,	      // reg_file write enable
 				   Zero,		      // ALU output = 0 flag
+					Jump,	         // to program counter: jump 
 					BranchEn;	   // to program counter: branch enable
 	reg  [15:0] CycleCt;	      // standalone; NOT PC!
 
@@ -43,6 +44,7 @@ module CPU(Reset, Start, Clk,Ack);
 	.Reset       (Reset   ) , 
 	.Start       (Start   ) ,  
 	.Clk         (Clk     ) ,  
+	.BranchAbs   (Jump    ) ,  // jump enable
 	.BranchRelEn (BranchEn) ,  // branch enable
 	.ALU_flag	 (Zero    ) ,
    .Target      (PCTarg  ) ,
@@ -52,6 +54,7 @@ module CPU(Reset, Start, Clk,Ack);
 	// Control decoder
   Ctrl Ctrl1 (
 	.Instruction  (Instruction),    // from instr_ROM
+	.Jump         (Jump),		     // to PC
 	.BranchEn     (BranchEn)		  // to PC
   );
   
@@ -73,7 +76,7 @@ module CPU(Reset, Start, Clk,Ack);
 	//Reg file
 	// Modify D = *Number of bits you use for each register*
    // Width of register is 8 bits, do not modify
-	RegFile #(.W(8),.D(2)) RF1 (
+	RegFile #(.W(8),.D(3)) RF1 (
 		.Clk    		(Clk)		  ,
 		.WriteEn   (RegWrEn)    , 
 		.RaddrA    (Instruction[5:3]),         

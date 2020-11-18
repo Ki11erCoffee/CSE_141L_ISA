@@ -12,7 +12,7 @@
        this can be an any-size reg_file: just override the params!
 */
 module RegFile (Clk,WriteEn,RaddrA,RaddrB,Waddr,DataIn,DataOutA,DataOutB);
-	parameter W=8, D=2;  // W = data path width (Do not change); D = pointer width (You may change) **CHANGE D DEPENDING ON # REGISTERS**
+	parameter W=8, D=4;  // W = data path width (Do not change); D = pointer width (You may change) **CHANGE D DEPENDING ON # REGISTERS**
 	input                Clk,
 								WriteEn;
 	input        [D-1:0] RaddrA,				  // address pointers
