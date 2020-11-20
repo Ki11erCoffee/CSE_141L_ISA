@@ -12,8 +12,8 @@ module ALU(InputA,InputB,OP,Function,Out,Zero);
 
 	input [7:0] InputA;
 	input [7:0] InputB;
-	input [1:0] Function;
 	input [1:0] OP;
+	input [1:0] Function; //was [1:0]
 	output reg [7:0] Out; // logic in SystemVerilog
 	output reg Zero;
 
@@ -41,11 +41,11 @@ module ALU(InputA,InputB,OP,Function,Out,Zero);
 		2'b00:
 					begin
 					
-						if(Function == 2'b00) begin			// add
+						if(Function[0] == 1'b0) begin			//add
 							Out = InputA + InputB;
 						end
 						
-						else if(Function == 2'b01) begin 	//beq
+						else if(Function[0] == 1'b1) begin 	//beq
 							Out = InputA - InputB;		
 						end
 						
