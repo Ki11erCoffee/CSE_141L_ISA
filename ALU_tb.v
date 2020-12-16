@@ -20,6 +20,7 @@ module ALU_tb;
 reg [ 7:0] INPUTA;     	  // data inputs
 reg [ 7:0] INPUTB;
 reg [ 2:0] op;		// ALU opcode, part of microcode
+reg [ 1:0] Function; // was 2 bits
 wire[ 7:0] OUT;		  
 
   wire Zero;    
@@ -31,6 +32,7 @@ ALU uut(
   .InputA(INPUTA),      	  
   .InputB(INPUTB),
   .OP(op),				  
+  .Function(Function),
   .Out(OUT),		  			
   .Zero(Zero)
     );
@@ -40,27 +42,62 @@ ALU uut(
 
 		INPUTA = 1;
 		INPUTB = 1; 
-		op= 'b01; // AND
+		op= 'b00; // ADD
+		Function = 2'b00;
 		test_alu_func; // void function call
 		#5;
 	
+	   INPUTA = 4;
+		INPUTB = 1;
+		op= 'b10; // ORR
+		Function = 2'b00;
+		test_alu_func; // void function call
+		#5;
 	
 		INPUTA = 4;
 		INPUTB = 1;
-		op= 'b101; // ADD
+		op= 'b10; // SUB
+		Function = 2'b01;
 		test_alu_func; // void function call
 		#5;
+		
+		INPUTA = 4;
+		INPUTB = 1;
+		op= 'b11; // SLL
+		Function = 2'b00;
+		test_alu_func; // void function call
+		#5;
+		
+		INPUTA = 4;
+		INPUTB = 1;
+		op= 'b11; // SRL
+		Function = 2'b01;
+		test_alu_func; // void function call
+		#5;
+		
 	end
 	
 	task test_alu_func;
 	begin
 	  case (op)
 		0: expected = INPUTA + INPUTB;
-		1: expected = INPUTA & INPUTB;
-		2: expected = INPUTA | INPUTB;
-		3: expected = INPUTA ^ INPUTB;
-		4: expected = INPUTA << 1;				// Shift left
-		5: expected = {1'b0,INPUTA[7:1]};   // Shift right
+		//1: expected = INPUTA & INPUTB;
+		2: 
+			begin
+				if(Function ==2'b00)
+					expected = INPUTA | INPUTB;
+				
+				else if(Function == 2'b01)
+					expected = INPUTA - INPUTB;
+			end
+		3:
+			begin 
+				if(Function ==2'b00)
+					expected = INPUTA << INPUTB;
+				
+				else if(Function == 2'b01)
+					expected = INPUTA >> INPUTB;
+			end
 	  endcase
 	  #1; if(expected == OUT)
 		begin

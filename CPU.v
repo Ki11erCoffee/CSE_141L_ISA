@@ -62,7 +62,7 @@ module CPU(Reset, Start, Clk,Ack);
 	.InstOut       (Instruction)
 	);
 	
-	assign LoadInst = Instruction[8:6]==3'b110;  // calls out load specially
+	assign LoadInst = (Instruction[8:7]==2'b01) & Instruction[0];  // calls out load specially
 	
 	always@*							  
 	begin
@@ -76,9 +76,9 @@ module CPU(Reset, Start, Clk,Ack);
 	RegFile #(.W(8),.D(2)) RF1 (
 		.Clk    		(Clk)		  ,
 		.WriteEn   (RegWrEn)    , 
-		.RaddrA    (Instruction[5:3]),         
-		.RaddrB    (Instruction[2:0]), 
-		.Waddr     (Instruction[5:3]), 	       
+		.RaddrA    (Instruction[6:5]),         
+		.RaddrB    (Instruction[4:3]), 
+		.Waddr     (Instruction[2:1]), 	       
 		.DataIn    (RegWriteValue) , 
 		.DataOutA  (ReadA        ) , 
 		.DataOutB  (ReadB		 )
@@ -88,8 +88,8 @@ module CPU(Reset, Start, Clk,Ack);
 	
 	assign InA = ReadA;						                       // connect RF out to ALU in
 	assign InB = ReadB;
-	assign Instr_opcode = Instruction[8:6];
-	assign MemWrite = (Instruction == 9'h111);                 // mem_store command
+	assign Instr_opcode = Instruction[8:7];
+	assign MemWrite = (Instruction[8:7] == 2'b01) & (Instruction[0] == 1'b0);   // mem_store command
 	assign RegWriteValue = LoadInst? MemReadValue : ALU_out;  // 2:1 switch into reg_file
 	
 
@@ -97,7 +97,8 @@ module CPU(Reset, Start, Clk,Ack);
 	ALU ALU1(
 	  .InputA(InA),      	  
 	  .InputB(InB),
-	  .OP(Instruction[8:6]),				  
+	  .OP(Instruction[8:7]),
+	  .Function(Instruction[1:0]),
 	  .Out(ALU_out),		  			
 	  .Zero()
 		 );
