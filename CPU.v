@@ -25,7 +25,9 @@ module CPU(Reset, Start, Clk, Ack);
 	wire [ 7:0] PCTarg;			// PC target
 	wire [ 8:0] Instruction;   // our 9-bit instruction
 	wire [ 8:7] Instr_opcode;  // out 3-bit opcode
-	wire [ 7:0] ReadA, ReadB;  // reg_file outputs
+	wire [ 7:0] ReadA, 
+					ReadB, 
+					RD;  				// reg_file outputs
 	wire [ 7:0] InA, InB, 	   // ALU operand inputs
 					ALU_out;       // ALU result
 	wire [ 7:0] RegWriteValue, // data in to reg file
@@ -37,7 +39,8 @@ module CPU(Reset, Start, Clk, Ack);
 					BranchEn;	   // to program counter: branch enable
 	reg  [15:0] CycleCt;	      // standalone; NOT PC!
 
-	// Fetch = Program Counter + Instruction ROM
+	
+   // Fetch = Program Counter + Instruction ROM
 	// Program Counter
   InstFetch IF1 (
 	.Reset       (Reset   ) , 
@@ -66,10 +69,8 @@ module CPU(Reset, Start, Clk, Ack);
 	
 	assign LoadInst = (Instruction[8:7]==2'b01) & (Instruction[1:0] == 2'b01);  // calculates if instruction is lw
 	
-	// write to register if instruction is NOT beq or sw
-	assign RegWrEn = (!LoadInst) & (!BranchEn);
 	
-	//WTF DOES THIS DO??
+	//signals done
 	always@*							  
 	begin
 		Ack = (Instruction[7:0] == 0);  // Update this to the condition you want to set done to true
@@ -80,15 +81,16 @@ module CPU(Reset, Start, Clk, Ack);
 	// Modify D = *Number of bits you use for each register*
    // Width of register is 8 bits, do not modify
 	RegFile #(.W(8),.D(2)) RF1 (
-		.Clk    		(Clk)		  ,
+		.Clk    	  (Clk)		   ,
 		.WriteEn   (RegWrEn)    , 
-		.RaddrA    (Instruction[6:5]),         
-		.RaddrB    (Instruction[4:3]), 
-		.Waddr     (Instruction[2:1]), 	       
-		.DataIn    (RegWriteValue) , 
+		.RaddrA    (Instruction[4:3]),         
+		.RaddrB    (Instruction[2:1]), 
+		.Waddr     (Instruction[6:5]), 	       
+		.DataIn    (RegWriteValue) , 				//RegWriteValue!!!!!!!
 		.DataOutA  (ReadA        ) , 
-		.DataOutB  (ReadB		    ),
-		.DataOutBr (PCTarg)
+		.DataOutB  (ReadB		    ) ,
+		.DataOutBr (PCTarg)			,
+		.DataOutRD (RD)
 	);
 	
 	
@@ -96,17 +98,22 @@ module CPU(Reset, Start, Clk, Ack);
 	assign InB = ReadB;
 	assign Instr_opcode = Instruction[8:7];
 	assign MemWrite = (Instruction[8:7] == 2'b01) & (Instruction[0] == 1'b0);   // set to 1 if instruction is 1
+	assign RegWriteValue = LoadInst? MemReadValue : ALU_out;  // value that you write to RD, ASSUME CORRECT
+
+	// write to register if instruction is NOT beq or sw
+	assign RegWrEn = (!MemWrite) & (!BranchEn);
 	
 
 	// Arithmetic Logic Unit
 	ALU ALU1(
 	  .InputA(InA),      	  
 	  .InputB(InB),
+	  .RD(RD),
 	  .Immediate(Instruction[4:2]),
 	  .OP(Instruction[8:7]),
 	  .Function(Instruction[1:0]),
 	  .Out(ALU_out),		  			
-	  .Zero()
+	  .Zero(Zero)
 	);
 	 	 
   
@@ -115,27 +122,21 @@ module CPU(Reset, Start, Clk, Ack);
 		.Clk 		  	  (Clk)     ,
 		.Reset		  (Reset)	,
 		.WriteEn      (MemWrite), 
-		.DataAddress  (InB)     , 
-		.DataIn       (InA)		, 
+		.DataAddress  (InA)     , 
+		.DataIn       (RD)		, 
 		.DataOut      (MemReadValue)
 	);
 
 	
-	assign RegWriteValue = LoadInst? MemReadValue : ALU_out;  // value that you write to RD, ASSUME CORRECT
-
-	
-	RegFile #(.W(8),.D(2)) RF1 (
-		.Clk    		(Clk)		  ,
-		.WriteEn   (RegWrEn)    , 
-		.RaddrA    (Instruction[6:5]),         
-		.RaddrB    (Instruction[4:3]), 
-		.Waddr     (Instruction[2:1]), 	       
-		.DataIn    (RegWriteValue) , 
-		.DataOutA  (ReadA        ) , 
-		.DataOutB  (ReadB		    ),
-		.DataOutBr (PCTarg)
+/*
+	writeToRegister regWrite1(
+		.Clk    	  (Clk)		   ,
+		.WriteEn   (RegWrEn)    ,
+		.Waddr	  (Instruction[2:1]),
+		.DataIn    (RegWriteValue)
 	);
-	 
+*/
+	
 	
 // count number of instructions executed
 // Help you with debugging

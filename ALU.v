@@ -8,10 +8,11 @@
 
 
 	 
-module ALU(InputA, InputB, Immediate, OP, Function, Out, Zero);
+module ALU(InputA, InputB, RD, Immediate, OP, Function, Out, Zero);
 
 	input [7:0] InputA;
 	input [7:0] InputB;
+	input [7:0] RD;
 	input [2:0] Immediate; 
 	input [1:0] OP;
 	input [1:0] Function; //was [1:0]
@@ -47,7 +48,7 @@ module ALU(InputA, InputB, Immediate, OP, Function, Out, Zero);
 						end
 						
 						else if(Function[0] == 1'b1) begin 	//beq
-							Out = InputA - InputB;		
+							Out = RD - InputA;		
 						end
 						
 					end

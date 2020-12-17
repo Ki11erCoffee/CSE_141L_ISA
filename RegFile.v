@@ -11,7 +11,7 @@
 /* parameters are compile time directives 
        this can be an any-size reg_file: just override the params!
 */
-module RegFile (Clk, WriteEn, RaddrA, RaddrB, Waddr, DataIn, DataOutA, DataOutB, DataOutBr);
+module RegFile (Clk, WriteEn, RaddrA, RaddrB, Waddr, DataIn, DataOutA, DataOutB, DataOutBr, DataOutRD);
 	parameter W=8, D=2;  // W = data path width (Do not change); D = pointer width (You may change) **CHANGE D DEPENDING ON # REGISTERS**
 	input                Clk,
 								WriteEn;				 // if 0: do not write to register, if 1: write to register
@@ -22,7 +22,8 @@ module RegFile (Clk, WriteEn, RaddrA, RaddrB, Waddr, DataIn, DataOutA, DataOutB,
 	output reg   [W-1:0] DataOutA;			  // register A value
 	output reg   [W-1:0] DataOutB;			  // register B value
 	output reg 	 [W-1:0] DataOutBr;			  // offset for branch
-
+	output reg 	 [W-1:0] DataOutRD;
+	
 // W bits wide [W-1:0] and 2**4 registers deep 	 
 reg [W-1:0] Registers[(2**D)-1:0];	  // or just registers[16-1:0] if we know D=4 always
 
@@ -34,14 +35,16 @@ reg [W-1:0] Registers[(2**D)-1:0];	  // or just registers[16-1:0] if we know D=4
 
 always@*
 begin
- DataOutA = Registers[RaddrA];	  
- DataOutB = Registers[RaddrB];    
- DataOutBr = Registers[Waddr];
+  DataOutA = Registers[RaddrA];	  
+  DataOutB = Registers[RaddrB];    	
+  DataOutBr = Registers[RaddrB];
+  DataOutRD = Registers[Waddr];
 end
+
 
 // sequential (clocked) writes 
 always @ (posedge Clk)
   if (WriteEn)	                     // works just like data_memory writes
-    Registers[Waddr] <= DataIn;		//writed to RD
+    Registers[Waddr] <= DataIn;		// write to RD
 
 endmodule
