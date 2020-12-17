@@ -12,7 +12,7 @@
 
 
 	 
-module CPU(Reset, Start, Clk,Ack);
+module CPU(Reset, Start, Clk, Ack);
 
 	input Reset;		// init/reset, active high
 	input Start;		// start next program
@@ -21,8 +21,8 @@ module CPU(Reset, Start, Clk,Ack);
 
 	
 	
-	wire [ 9:0] PgmCtr,        // program counter
-			      PCTarg;
+	wire [ 10:0]PgmCtr;       // program counter
+	wire [ 7:0] PCTarg;			// PC target
 	wire [ 8:0] Instruction;   // our 9-bit instruction
 	wire [ 8:7] Instr_opcode;  // out 3-bit opcode
 	wire [ 7:0] ReadA, ReadB;  // reg_file outputs
@@ -31,8 +31,8 @@ module CPU(Reset, Start, Clk,Ack);
 	wire [ 7:0] RegWriteValue, // data in to reg file
 					MemWriteValue, // data in to data_memory
 					MemReadValue;  // data out from data_memory
-	wire        MemWrite,	   // data_memory write enable
-				   RegWrEn,	      // reg_file write enable
+	wire        RegWrEn,	      // reg_file write enable
+					MemWrite,	   // data_memory write enable
 				   Zero,		      // ALU output = 0 flag
 					BranchEn;	   // to program counter: branch enable
 	reg  [15:0] CycleCt;	      // standalone; NOT PC!
@@ -48,29 +48,35 @@ module CPU(Reset, Start, Clk,Ack);
    .Target      (PCTarg  ) ,
 	.ProgCtr     (PgmCtr  )	   // program count = index to instruction memory
 	);	
-
-	// Control decoder
-  Ctrl Ctrl1 (
-	.Instruction  (Instruction),    // from instr_ROM
-	.BranchEn     (BranchEn)		  // to PC
-  );
-  
-  
-	// instruction ROM
+	
+	
+  // instruction ROM: grabs next instruction
   InstROM IR1(
 	.InstAddress   (PgmCtr), 
 	.InstOut       (Instruction)
 	);
 	
-	assign LoadInst = (Instruction[8:7]==2'b01) & Instruction[0];  // calls out load specially
 	
+  // Control decoder: calculates if instruction is beq
+  Ctrl Ctrl1 (
+	.Instruction  (Instruction),    // from instr_ROM
+	.BranchEn     (BranchEn)		  // to PC
+  );
+	
+	
+	assign LoadInst = (Instruction[8:7]==2'b01) & (Instruction[1:0] == 2'b01);  // calculates if instruction is lw
+	
+	// write to register if instruction is NOT beq or sw
+	assign RegWrEn = (!LoadInst) & (!BranchEn);
+	
+	//WTF DOES THIS DO??
 	always@*							  
 	begin
-		Ack = Instruction[0];  // Update this to the condition you want to set done to true
+		Ack = (Instruction[7:0] == 0);  // Update this to the condition you want to set done to true
 	end
 	
 	
-	//Reg file
+	// Reg file: get values from the registers passed in the instruction
 	// Modify D = *Number of bits you use for each register*
    // Width of register is 8 bits, do not modify
 	RegFile #(.W(8),.D(2)) RF1 (
@@ -81,16 +87,15 @@ module CPU(Reset, Start, Clk,Ack);
 		.Waddr     (Instruction[2:1]), 	       
 		.DataIn    (RegWriteValue) , 
 		.DataOutA  (ReadA        ) , 
-		.DataOutB  (ReadB		 )
+		.DataOutB  (ReadB		    ),
+		.DataOutBr (PCTarg)
 	);
 	
 	
-	
-	assign InA = ReadA;						                       // connect RF out to ALU in
+	assign InA = ReadA;						         // connect RegFile out to ALU in
 	assign InB = ReadB;
 	assign Instr_opcode = Instruction[8:7];
-	assign MemWrite = (Instruction[8:7] == 2'b01) & (Instruction[0] == 1'b0);   // mem_store command
-	assign RegWriteValue = LoadInst? MemReadValue : ALU_out;  // 2:1 switch into reg_file
+	assign MemWrite = (Instruction[8:7] == 2'b01) & (Instruction[0] == 1'b0);   // set to 1 if instruction is 1
 	
 
 	// Arithmetic Logic Unit
@@ -102,20 +107,35 @@ module CPU(Reset, Start, Clk,Ack);
 	  .Function(Instruction[1:0]),
 	  .Out(ALU_out),		  			
 	  .Zero()
-		 );
-	 
-	 
+	);
+	 	 
+  
 	 // Data Memory
-	 	DataMem DM1(
-		.DataAddress  (ReadA)    , 
-		.WriteEn      (MemWrite), 
-		.DataIn       (MemWriteValue), 
-		.DataOut      (MemReadValue)  , 
+	 DataMem DM1(
 		.Clk 		  	  (Clk)     ,
-		.Reset		  (Reset)
+		.Reset		  (Reset)	,
+		.WriteEn      (MemWrite), 
+		.DataAddress  (InB)     , 
+		.DataIn       (InA)		, 
+		.DataOut      (MemReadValue)
 	);
 
 	
+	assign RegWriteValue = LoadInst? MemReadValue : ALU_out;  // value that you write to RD, ASSUME CORRECT
+
+	
+	RegFile #(.W(8),.D(2)) RF1 (
+		.Clk    		(Clk)		  ,
+		.WriteEn   (RegWrEn)    , 
+		.RaddrA    (Instruction[6:5]),         
+		.RaddrB    (Instruction[4:3]), 
+		.Waddr     (Instruction[2:1]), 	       
+		.DataIn    (RegWriteValue) , 
+		.DataOutA  (ReadA        ) , 
+		.DataOutB  (ReadB		    ),
+		.DataOutBr (PCTarg)
+	);
+	 
 	
 // count number of instructions executed
 // Help you with debugging

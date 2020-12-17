@@ -25,7 +25,7 @@ module Ctrl (Instruction, BranchEn);
 	  else
 		 Jump = 0;*/
 		 
-		 if(Instruction[8:7] ==  2'b00 && Instruction[0] ==  1'b1 /*AND some other conditions are true*/) // assuming 110 is your branch instruction
+	  if(Instruction[8:7] ==  2'b00 && Instruction[0] ==  1'b1 /*AND some other conditions are true*/) // assuming 110 is your branch instruction
 		 BranchEn = 1;
 	  else
 		 BranchEn = 0;

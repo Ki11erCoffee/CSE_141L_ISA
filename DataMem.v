@@ -13,10 +13,10 @@
 module DataMem(Clk,Reset,WriteEn,DataAddress,DataIn,DataOut);
   input              Clk,
                      Reset,
-                     WriteEn;
-  input [7:0]        DataAddress,   // 8-bit-wide pointer to 256-deep memory
-                     DataIn;		   // 8-bit-wide data path, also
-  output reg[7:0]    DataOut;
+                     WriteEn;			// set to 1 when instruction is sw, else 0
+  input [7:0]        DataAddress,   // where to read or write to mem: mem[DataAddress]
+                     DataIn;		   // value to write into memory
+  output reg[7:0]    DataOut;			// data read from mem[DataAddress]
 
   reg [7:0] Core[256-1:0];			   // 8x256 two-dimensional array -- the memory itself
 

@@ -9,15 +9,15 @@
 
 
 	 
-module InstFetch(Reset,Start,Clk,BranchRelEn,ALU_flag,Target,ProgCtr);
+module InstFetch(Reset, Start, Clk, BranchRelEn, ALU_flag, Target, ProgCtr);
 
   input              Reset,			   // reset, init, etc. -- force PC to 0 
                      Start,			   // begin next program in series
                      Clk,			      // PC can change on pos. edges only	   
-                     BranchRelEn,	   // jump conditionally to Target + PC
-                     ALU_flag;		   // flag from ALU, e.g. Zero, Carry, Overflow, Negative (from ARM)
-  input       [10:0] Target;		      // jump ... "how high?"
-  output reg[10:0] ProgCtr ;            // the program counter register itself
+                     BranchRelEn,	   // set to 1 when instruction is beq
+                     ALU_flag;		   // zero flag from ALU
+  input       [7:0] Target;		      // offset for beq(aka value of 3rd register)
+  output reg  [10:0] ProgCtr ;         // the program counter register itself
   
   
   //// program counter can clear to 0, increment, or jump
@@ -28,7 +28,7 @@ module InstFetch(Reset,Start,Clk,BranchRelEn,ALU_flag,Target,ProgCtr);
 		else if(Start)						     // hold while start asserted; commence when released
 		  ProgCtr <= ProgCtr;
 		else if(BranchRelEn && ALU_flag)   // conditional relative jump
-		  ProgCtr <= Target + ProgCtr;
+		  ProgCtr <= Target + ProgCtr; 
 		else
 		  ProgCtr <= ProgCtr+'b1; 	        // default increment (no need for ARM/MIPS +4. Pop quiz: why?)
 	end
