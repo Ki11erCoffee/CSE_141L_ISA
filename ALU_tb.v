@@ -1,33 +1,20 @@
 `timescale 1ns/ 1ps
 
-
-
 //Test bench
 //Arithmetic Logic Unit
-/*
-* INPUT: A, B
-* op: 00, A PLUS B
-* op: 01, A AND B
-* op: 10, A OR B
-* op: 11, A XOR B
-* OUTPUT A op B
-* equal: is A == B?
-* even: is the output even?
-*/
-
 
 module ALU_tb;
-reg [ 7:0] INPUTA;     	  // data inputs
-reg [ 7:0] INPUTB;
-reg [ 7:0] IMMEDIATE;
-reg [ 2:0] op;		// ALU opcode, part of microcode
-reg [ 1:0] Function; // was 2 bits
-wire[ 7:0] OUT;		  
-
-  wire Zero;    
- 
- reg [ 7:0] expected;
- 
+	reg [ 7:0] INPUTA;     	  // data inputs
+	reg [ 7:0] INPUTB;
+	reg [ 7:0] IMMEDIATE;
+	reg [ 2:0] op;		// ALU opcode, part of microcode
+	reg [ 1:0] Function; // was 2 bits
+	
+	wire[ 7:0] OUT;		  
+	wire Zero;    
+	 
+	reg [ 7:0] expected;
+	 
 // CONNECTION
 ALU uut(
   .InputA(INPUTA),      	  

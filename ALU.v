@@ -5,8 +5,6 @@
 // Based on SystemVerilog source code provided by John Eldon
 // Comment:
 // 
-
-
 	 
 module ALU(InputA, InputB, RD, Immediate, OP, Function, Out, Zero);
 
