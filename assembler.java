@@ -7,10 +7,10 @@ import java.util.*;
 
 public class assembler {
     public static void main(String [] args) throws Exception { 
-        File file = new File("C:\\Users\\felix\\Downloads\\hey.txt");
+        File file = new File("C:\\Users\\felix\\Google Drive\\Cse 141L\\Labs\\FCPD\\CSE_141L_ISA\\program1Final.txt"); 
         Scanner sc = new Scanner(file); 
 
-        File writeFile = new File("C:\\Users\\felix\\Downloads\\hey2.txt");
+        File writeFile = new File("C:\\Users\\felix\\Downloads\\machine_code.txt");
         BufferedWriter buff = new BufferedWriter(new FileWriter(writeFile));
 
         while (sc.hasNextLine()) {
@@ -61,7 +61,7 @@ public class assembler {
             }
         }
 
-        if(instruction.contains("sw") || instruction.contains("lw")) {   //ex: 
+        else if(instruction.contains("sw") || instruction.contains("lw")) {   //ex: 
             binary.append("01");
 
             int rd = Integer.parseInt(Character.toString(instruction.charAt(4)));
@@ -89,7 +89,7 @@ public class assembler {
         }
 
         //add here
-        if(instruction.contains("slt")) {   //ex: 
+        else if(instruction.contains("slt")) {   //ex: 
             binary.append("01");
 
             int rd = Integer.parseInt(Character.toString(instruction.charAt(5)));
@@ -114,7 +114,7 @@ public class assembler {
         }
 
 
-        if(instruction.contains("mv")) {
+        else if(instruction.contains("mv")) {
             binary.append("01");
 
             int rd = Integer.parseInt(Character.toString(instruction.charAt(4)));
@@ -137,7 +137,7 @@ public class assembler {
             binary.append("11");
         }
 
-        if(instruction.contains("orr") || instruction.contains("sub")) {   //ex: add R3, R1, R2
+        else if(instruction.contains("orr") || instruction.contains("sub")) {   //ex: add R3, R1, R2
             binary.append("10");
 
             int rd = Integer.parseInt(Character.toString(instruction.charAt(5)));
@@ -169,7 +169,7 @@ public class assembler {
             }
         }
 
-        if(instruction.contains("sll") || instruction.contains("srl")) {   //ex: add R3, R1, R2
+        else if(instruction.contains("sll") || instruction.contains("srl")) {   //ex: add R3, R1, R2
             binary.append("11");
 
             int rd = Integer.parseInt(Character.toString(instruction.charAt(5)));

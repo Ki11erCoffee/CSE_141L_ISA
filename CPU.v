@@ -97,6 +97,7 @@ module CPU(Reset, Start, Clk,Ack);
 	ALU ALU1(
 	  .InputA(InA),      	  
 	  .InputB(InB),
+	  .Immediate(Instruction[4:2]),
 	  .OP(Instruction[8:7]),
 	  .Function(Instruction[1:0]),
 	  .Out(ALU_out),		  			
