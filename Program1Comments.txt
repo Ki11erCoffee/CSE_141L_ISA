@@ -1,0 +1,138 @@
+mv r0, 1
+mv r1, 7
+add r0, r0, r1    // store 8 into mem[5]
+mv r2, 5
+sw r0, r2
+
+mv r0, 0   // Initilize everthing
+mv r1, 0   // i
+mv r2, 7   // temp = 7
+mv r2, 7
+mv r2, 7
+mv r2, 7
+mv r2, 7
+mv r2, 7
+mv r2, 7
+mv r2, 7
+
+
+sub r3, r2, r1    // get offset
+mv r2, 0      
+sw r1, r2      // store i in mem[0]  
+mv r2, 1
+sw r0, r2      // store answer into mem[1]
+mv r2, 6    
+mv r1, 3
+add r2, r2, r1    // get a 9 
+lw r2, r2        // load mem[9] into r2
+mv r0, 0         
+lw r1, r0        // reload i
+sll r2, r2, r1   // shift mem[9] << i
+srl r2, r2, r1   // shift mem[9] >> i
+srl r2, r2, r3   // shift mem[9] >> 7 - i
+sll r2, r2, r3   // shift mem[9] << 7 - i
+sub r3, r3, r1   // get where bit needs to go 7 - i - i
+mv r0, 0         
+slt r3, r3, r0   // set r3 to 1 if placement is negative
+sw r2, r0       // store shifted m[9] into mem[0]
+mv r2, 7     
+mv r0, 1
+add r2, r2, r0  // get 8
+mv r0, 0         
+beq r3, r0, r2   // if r3 == 0 meaning the result wasent negative jump 8 instrc
+lw r2, r0    // reload r2 == shifted mem[9]
+mv r3, 7        // re-calculate offset  
+sub r3, r3, r1    // 7 - i  -> i should be 4 or greater 
+sub r3, r1, r3    // i - 7
+sll r2, r2, r3    // shift left to where you need to go
+mv r0, 6          // get 6
+beq r3, r3, r0    // jump 6
+lw r2, r0 
+mv r3, 7
+sub r3, r3, r1
+sub r3, r3, r1
+srl r2, r2, r3
+mv r0, 1           // r0 =  1
+lw r0, r0          // reload r0
+orr r0, r0, r2    // orr to get bit
+mv r2, 1
+add r1, r1, r2   // increments i
+mv r2, 5
+mv r3, 1
+add r3, r2, r3   // 5 + 1 = 6
+lw r2, r2        // load r2 with 8
+beq r1, r2, r3   // jump 6 to break -> break when i == 8
+mv r3, 2
+add r3, r3, r3
+add r3, r3, r3
+add r3, r3, r3
+beq r1, r1, r3  // branch back 56
+mv r1, 7    
+mv r2, 3
+add r1, r1, r2   // get 10
+sw r0, r1        // store r0 into mem[10]
+mv r0, 0
+mv r1, 0    // LOOP over for mem[11]
+mv r2, 7
+mv r2, 7
+mv r2, 7
+mv r2, 7
+mv r2, 7
+mv r2, 7
+mv r2, 7
+mv r2, 7
+sub r3, r2, r1
+mv r2, 0
+sw r1, r2
+mv r2, 1
+sw r0, r2
+mv r2, 7
+mv r1, 1
+add r2, r2, r1 
+lw r2, r2
+mv r0, 0
+lw r1, r0
+sll r2, r2, r1 
+srl r2, r2, r1
+srl r2, r2, r3
+sll r2, r2, r3
+sub r3, r3, r1
+mv r0, 0
+slt r3, r3, r0
+sw r2, r0
+mv r2, 7
+mv r0, 1
+add r2, r2, r0
+mv r0, 0 
+beq r3, r0, r2
+lw r2, r0 
+mv r3, 7
+sub r3, r3, r1
+sub r3, r1, r3
+sll r2, r2, r3
+mv r0, 6
+beq r3, r3, r0
+lw r2, r0
+mv r3, 7
+sub r3, r3, r1
+sub r3, r3, r1
+srl r2, r2, r3
+mv r0, 1
+lw r0, r0
+orr r0, r0, r2
+mv r2, 1
+add r1, r1, r2  // increment i
+mv r2, 5
+mv r3, 1
+add r3, r2, r3   // get 6 into r3
+lw r2, r2
+beq r1, r2, r2
+mv r3, 2
+add r3, r3, r3
+add r3, r3, r3
+add r3, r3, r3
+beq r1, r1, r3
+mv r1, 7
+mv r2, 4
+add r1, r1, r2
+sw r0, r1
