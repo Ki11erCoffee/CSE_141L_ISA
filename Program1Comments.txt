@@ -8,7 +8,7 @@ mv r0, 0   // Initilize everthing
 mv r1, 0   // i
 mv r2, 7   // temp = 7
 mv r2, 7
-mv r2, 7
+mv r2, 7   // NEED these mv commands for when we branch back we need some cushion to land correctly
 mv r2, 7
 mv r2, 7
 mv r2, 7
